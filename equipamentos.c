@@ -63,14 +63,23 @@ void equipamentos_carregar(Equipamento **lista, int *proximoCodigo) {
         if (!novo) break;
         novo->codigo = data.codigo;
         strncpy(novo->nome, data.nome, MAX_NOME);
+        novo->nome[MAX_NOME - 1] = '\0';
         strncpy(novo->tipo, data.tipo, MAX_TIPO);
+        novo->tipo[MAX_TIPO - 1] = '\0';
         strncpy(novo->marca, data.marca, MAX_MARCA);
+        novo->marca[MAX_MARCA - 1] = '\0';
         strncpy(novo->modelo, data.modelo, MAX_MODELO);
+        novo->modelo[MAX_MODELO - 1] = '\0';
         strncpy(novo->ip, data.ip, MAX_IP);
+        novo->ip[MAX_IP - 1] = '\0';
         strncpy(novo->mac, data.mac, MAX_MAC);
+        novo->mac[MAX_MAC - 1] = '\0';
         strncpy(novo->localizacao, data.localizacao, MAX_LOCALIZACAO);
+        novo->localizacao[MAX_LOCALIZACAO - 1] = '\0';
         strncpy(novo->estado, data.estado, MAX_ESTADO);
+        novo->estado[MAX_ESTADO - 1] = '\0';
         strncpy(novo->ultimaVerificacao, data.ultimaVerificacao, MAX_DATA);
+        novo->ultimaVerificacao[MAX_DATA - 1] = '\0';
         novo->next = NULL;
         appendEquipamento(lista, novo);
         if (novo->codigo > maxCodigo) {
@@ -89,14 +98,23 @@ void equipamentos_salvar(const Equipamento *lista) {
         EquipamentoData data;
         data.codigo = atual->codigo;
         strncpy(data.nome, atual->nome, MAX_NOME);
+        data.nome[MAX_NOME - 1] = '\0';
         strncpy(data.tipo, atual->tipo, MAX_TIPO);
+        data.tipo[MAX_TIPO - 1] = '\0';
         strncpy(data.marca, atual->marca, MAX_MARCA);
+        data.marca[MAX_MARCA - 1] = '\0';
         strncpy(data.modelo, atual->modelo, MAX_MODELO);
+        data.modelo[MAX_MODELO - 1] = '\0';
         strncpy(data.ip, atual->ip, MAX_IP);
+        data.ip[MAX_IP - 1] = '\0';
         strncpy(data.mac, atual->mac, MAX_MAC);
+        data.mac[MAX_MAC - 1] = '\0';
         strncpy(data.localizacao, atual->localizacao, MAX_LOCALIZACAO);
+        data.localizacao[MAX_LOCALIZACAO - 1] = '\0';
         strncpy(data.estado, atual->estado, MAX_ESTADO);
+        data.estado[MAX_ESTADO - 1] = '\0';
         strncpy(data.ultimaVerificacao, atual->ultimaVerificacao, MAX_DATA);
+        data.ultimaVerificacao[MAX_DATA - 1] = '\0';
         fwrite(&data, sizeof(EquipamentoData), 1, f);
         atual = atual->next;
     }

@@ -1,10 +1,11 @@
 #include "relatorios.h"
 
-static const char *RELATORIO_ESTADO_FILE = "dados/relatorio_estado_rede_mes_ano.txt";
-static const char *RELATORIO_MENSAL_FILE = "dados/relatorio_incidentes_mensal.txt";
-
 void gerarRelatorioEstado(const Equipamento *equipamentos, const Incidente *incidentes, const LeituraSensor *leituras) {
-    FILE *f = fopen(RELATORIO_ESTADO_FILE, "w");
+    char nomeFicheiro[128];
+    time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
+    strftime(nomeFicheiro, sizeof(nomeFicheiro), "dados/relatorio_estado_rede_%m_%Y.txt", tm);
+    FILE *f = fopen(nomeFicheiro, "w");
     if (!f) {
         printf("Não foi possível criar o ficheiro de relatório de estado.\n");
         return;
@@ -12,14 +13,20 @@ void gerarRelatorioEstado(const Equipamento *equipamentos, const Incidente *inci
 
     int totalEquipamentos = 0;
     int operacionais = 0;
-    int falha = 0;
+    int emFalha = 0;
+    int emManutencao = 0;
+    int desativado = 0;
     const Equipamento *eq = equipamentos;
     while (eq) {
         totalEquipamentos++;
         if (strcmp(eq->estado, "Operacional") == 0) {
             operacionais++;
-        } else {
-            falha++;
+        } else if (strcmp(eq->estado, "Em Falha") == 0) {
+            emFalha++;
+        } else if (strcmp(eq->estado, "Em Manutenção") == 0) {
+            emManutencao++;
+        } else if (strcmp(eq->estado, "Desativado") == 0) {
+            desativado++;
         }
         eq = eq->next;
     }
@@ -48,17 +55,32 @@ void gerarRelatorioEstado(const Equipamento *equipamentos, const Incidente *inci
     fprintf(f, "===========================\n");
     fprintf(f, "Total de equipamentos: %d\n", totalEquipamentos);
     fprintf(f, "Equipamentos operacionais: %d\n", operacionais);
-    fprintf(f, "Equipamentos em falha/manutenção/desativados: %d\n", falha);
+    fprintf(f, "Equipamentos em falha: %d\n", emFalha);
+    fprintf(f, "Equipamentos em manutenção: %d\n", emManutencao);
+    fprintf(f, "Equipamentos desativados: %d\n", desativado);
     fprintf(f, "Total de incidentes: %d\n", totalIncidentes);
     fprintf(f, "Incidentes pendentes: %d\n", pendentes);
     fprintf(f, "Leituras anómalas de sensores: %d\n", leiturasAnomalias);
 
+    fprintf(f, "\nLista de equipamentos:\n");
+    fprintf(f, "Código | Nome | IP | Estado\n");
+    fprintf(f, "-------------------------------------------\n");
+    eq = equipamentos;
+    while (eq) {
+        fprintf(f, "%d | %s | %s | %s\n", eq->codigo, eq->nome, eq->ip, eq->estado);
+        eq = eq->next;
+    }
+
     fclose(f);
-    printf("Relatório de estado gerado em %s\n", RELATORIO_ESTADO_FILE);
+    printf("Relatório de estado gerado em %s\n", nomeFicheiro);
 }
 
 void gerarRelatorioMensal(const Incidente *incidentes) {
-    FILE *f = fopen(RELATORIO_MENSAL_FILE, "w");
+    char nomeFicheiro[128];
+    time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
+    strftime(nomeFicheiro, sizeof(nomeFicheiro), "dados/relatorio_incidentes_mensal_%m_%Y.txt", tm);
+    FILE *f = fopen(nomeFicheiro, "w");
     if (!f) {
         printf("Não foi possível criar o ficheiro de relatório mensal.\n");
         return;
@@ -89,5 +111,5 @@ void gerarRelatorioMensal(const Incidente *incidentes) {
     fprintf(f, "Prioridade baixa: %d\n", prioridadeBaixa);
 
     fclose(f);
-    printf("Relatório mensal gerado em %s\n", RELATORIO_MENSAL_FILE);
+    printf("Relatório mensal gerado em %s\n", nomeFicheiro);
 }
