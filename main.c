@@ -62,6 +62,14 @@ void abrirMenuInventario(Sistema *sys) {
         printf("\n=== Inventário de Equipamentos ===\n");
         printf("1. Adicionar equipamento\n");
         printf("2. Listar equipamentos\n");
+        printf("3. Remover equipamento\n");
+        printf("4. Alterar dados do equipamento\n");
+        printf("5. Alterar estado do equipamento\n");
+        printf("6. Pesquisar equipamento por código\n");
+        printf("7. Pesquisar equipamento por IP\n");
+        printf("8. Pesquisar equipamento por MAC\n");
+        printf("9. Listar equipamentos por tipo\n");
+        printf("10. Listar equipamentos por estado\n");
         printf("0. Voltar\n");
         opcao = lerInteiro("Escolha uma opção: ");
         switch (opcao) {
@@ -73,6 +81,74 @@ void abrirMenuInventario(Sistema *sys) {
             case 2:
                 listarEquipamentos(sys->equipamentos);
                 break;
+            case 3: {
+                int codigo = lerInteiro("Código do equipamento a remover: ");
+                removerEquipamento(&sys->equipamentos, sys->incidentes, codigo);
+                break;
+            }
+            case 4: {
+                int codigo = lerInteiro("Código do equipamento a alterar: ");
+                alterarEquipamento(sys->equipamentos, codigo);
+                break;
+            }
+            case 5: {
+                int codigo = lerInteiro("Código do equipamento para mudar estado: ");
+                char novoEstado[MAX_ESTADO];
+                lerTexto("Novo estado (Operacional/Em Falha/Em Manutenção/Desativado): ", novoEstado, MAX_ESTADO);
+                if (alterarEstadoEquipamento(sys->equipamentos, codigo, novoEstado)) {
+                    printf("Estado do equipamento %d alterado com sucesso.\n", codigo);
+                } else {
+                    printf("Não foi possível alterar o estado do equipamento %d.\n", codigo);
+                }
+                break;
+            }
+            case 6: {
+                int codigo = lerInteiro("Código do equipamento a pesquisar: ");
+                Equipamento *eq = pesquisarPorCodigo(sys->equipamentos, codigo);
+                if (eq) {
+                    printf("Equipamento encontrado: Código %d | Nome: %s | Tipo: %s | IP: %s | Estado: %s\n",
+                           eq->codigo, eq->nome, eq->tipo, eq->ip, eq->estado);
+                } else {
+                    printf("Equipamento %d não encontrado.\n", codigo);
+                }
+                break;
+            }
+            case 7: {
+                char ip[MAX_IP];
+                lerTexto("Endereço IP a pesquisar: ", ip, MAX_IP);
+                Equipamento *eq = pesquisarPorIP(sys->equipamentos, ip);
+                if (eq) {
+                    printf("Equipamento encontrado: Código %d | Nome: %s | Tipo: %s | IP: %s | Estado: %s\n",
+                           eq->codigo, eq->nome, eq->tipo, eq->ip, eq->estado);
+                } else {
+                    printf("Nenhum equipamento com IP %s encontrado.\n", ip);
+                }
+                break;
+            }
+            case 8: {
+                char mac[MAX_MAC];
+                lerTexto("Endereço MAC a pesquisar: ", mac, MAX_MAC);
+                Equipamento *eq = pesquisarPorMAC(sys->equipamentos, mac);
+                if (eq) {
+                    printf("Equipamento encontrado: Código %d | Nome: %s | Tipo: %s | IP: %s | Estado: %s\n",
+                           eq->codigo, eq->nome, eq->tipo, eq->ip, eq->estado);
+                } else {
+                    printf("Nenhum equipamento com MAC %s encontrado.\n", mac);
+                }
+                break;
+            }
+            case 9: {
+                char tipo[MAX_TIPO];
+                lerTexto("Tipo a listar: ", tipo, MAX_TIPO);
+                listarPorTipo(sys->equipamentos, tipo);
+                break;
+            }
+            case 10: {
+                char estado[MAX_ESTADO];
+                lerTexto("Estado a listar: ", estado, MAX_ESTADO);
+                listarPorEstado(sys->equipamentos, estado);
+                break;
+            }
             case 0:
                 break;
             default:

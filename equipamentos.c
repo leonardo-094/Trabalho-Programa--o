@@ -1,6 +1,24 @@
 #include "equipamentos.h"
+#include "incidentes.h"
 
 static const char *EQUIPAMENTOS_FILE = "dados/equipamentos.dat";
+
+static bool validarEstadoEquipamento(const char *estado) {
+    return strcmp(estado, "Operacional") == 0
+        || strcmp(estado, "Em Falha") == 0
+        || strcmp(estado, "Em Manutenção") == 0
+        || strcmp(estado, "Em Manutencao") == 0
+        || strcmp(estado, "Desativado") == 0;
+}
+
+static void normalizarEstadoEquipamento(char *dest, const char *estado) {
+    if (strcmp(estado, "Em Manutencao") == 0) {
+        strncpy(dest, "Em Manutenção", MAX_ESTADO);
+    } else {
+        strncpy(dest, estado, MAX_ESTADO);
+    }
+    dest[MAX_ESTADO - 1] = '\0';
+}
 
 static void appendEquipamento(Equipamento **lista, Equipamento *novo) {
     if (!*lista) {
@@ -35,6 +53,161 @@ void adicionarEquipamento(Equipamento **lista, Equipamento *novo) {
     if (!novo) return;
     appendEquipamento(lista, novo);
     printf("Equipamento %s (%d) adicionado com sucesso.\n", novo->nome, novo->codigo);
+}
+
+Equipamento *pesquisarPorCodigo(const Equipamento *lista, int codigo) {
+    const Equipamento *atual = lista;
+    while (atual) {
+        if (atual->codigo == codigo) {
+            return (Equipamento *)atual;
+        }
+        atual = atual->next;
+    }
+    return NULL;
+}
+
+Equipamento *pesquisarPorIP(const Equipamento *lista, const char *ip) {
+    const Equipamento *atual = lista;
+    while (atual) {
+        if (strcmp(atual->ip, ip) == 0) {
+            return (Equipamento *)atual;
+        }
+        atual = atual->next;
+    }
+    return NULL;
+}
+
+Equipamento *pesquisarPorMAC(const Equipamento *lista, const char *mac) {
+    const Equipamento *atual = lista;
+    while (atual) {
+        if (strcmp(atual->mac, mac) == 0) {
+            return (Equipamento *)atual;
+        }
+        atual = atual->next;
+    }
+    return NULL;
+}
+
+bool removerEquipamento(Equipamento **lista, const Incidente *incidentes, int codigo) {
+    const Incidente *inc = incidentes;
+    while (inc) {
+        if (inc->codigoEquipamento == codigo && strcmp(inc->estado, "Pendente") == 0) {
+            printf("Não é possível remover o equipamento %d: incidente pendente associado.\n", codigo);
+            return false;
+        }
+        inc = inc->next;
+    }
+
+    Equipamento *anterior = NULL;
+    Equipamento *atual = *lista;
+    while (atual && atual->codigo != codigo) {
+        anterior = atual;
+        atual = atual->next;
+    }
+
+    if (!atual) {
+        printf("Equipamento %d não encontrado.\n", codigo);
+        return false;
+    }
+
+    if (anterior) {
+        anterior->next = atual->next;
+    } else {
+        *lista = atual->next;
+    }
+    free(atual);
+    printf("Equipamento %d removido com sucesso.\n", codigo);
+    return true;
+}
+
+bool alterarEquipamento(Equipamento *lista, int codigo) {
+    Equipamento *eq = pesquisarPorCodigo(lista, codigo);
+    if (!eq) {
+        printf("Equipamento %d não encontrado.\n", codigo);
+        return false;
+    }
+
+    printf("Alterando equipamento %d (%s)\n", eq->codigo, eq->nome);
+    lerTexto("Nome do equipamento: ", eq->nome, MAX_NOME);
+    lerTexto("Tipo do equipamento: ", eq->tipo, MAX_TIPO);
+    lerTexto("Marca: ", eq->marca, MAX_MARCA);
+    lerTexto("Modelo: ", eq->modelo, MAX_MODELO);
+    lerTexto("Endereço IP: ", eq->ip, MAX_IP);
+    lerTexto("Endereço MAC: ", eq->mac, MAX_MAC);
+    lerTexto("Localização física: ", eq->localizacao, MAX_LOCALIZACAO);
+    char novoEstado[MAX_ESTADO];
+    lerTexto("Estado (Operacional/Em Falha/Em Manutenção/Desativado): ", novoEstado, MAX_ESTADO);
+    if (!validarEstadoEquipamento(novoEstado)) {
+        printf("Estado inválido. Alteração cancelada.\n");
+        return false;
+    }
+    normalizarEstadoEquipamento(eq->estado, novoEstado);
+    agoraFormato(eq->ultimaVerificacao, MAX_DATA);
+    printf("Equipamento %d alterado com sucesso.\n", codigo);
+    return true;
+}
+
+bool alterarEstadoEquipamento(Equipamento *lista, int codigo, const char *novoEstado) {
+    Equipamento *eq = pesquisarPorCodigo(lista, codigo);
+    if (!eq) {
+        return false;
+    }
+    if (!validarEstadoEquipamento(novoEstado)) {
+        return false;
+    }
+    normalizarEstadoEquipamento(eq->estado, novoEstado);
+    agoraFormato(eq->ultimaVerificacao, MAX_DATA);
+    return true;
+}
+
+void listarPorTipo(const Equipamento *lista, const char *tipo) {
+    if (!lista) {
+        printf("Nenhum equipamento registado.\n");
+        return;
+    }
+
+    printf("\nEquipamentos do tipo %s:\n", tipo);
+    printf("------------------------------------------------------------\n");
+    const Equipamento *atual = lista;
+    int encontrados = 0;
+    while (atual) {
+        if (strcmp(atual->tipo, tipo) == 0) {
+            printf("Código: %d | Nome: %s | Tipo: %s | IP: %s | Estado: %s\n",
+                   atual->codigo, atual->nome, atual->tipo, atual->ip, atual->estado);
+            encontrados++;
+        }
+        atual = atual->next;
+    }
+
+    if (!encontrados) {
+        printf("Nenhum equipamento do tipo %s encontrado.\n", tipo);
+    }
+    printf("------------------------------------------------------------\n");
+}
+
+void listarPorEstado(const Equipamento *lista, const char *estado) {
+    if (!lista) {
+        printf("Nenhum equipamento registado.\n");
+        return;
+    }
+
+    printf("\nEquipamentos com estado %s:\n", estado);
+    printf("------------------------------------------------------------\n");
+    const Equipamento *atual = lista;
+    int encontrados = 0;
+    while (atual) {
+        if (strcmp(atual->estado, estado) == 0) {
+            printf("Código: %d | Nome: %s | Tipo: %s | IP: %s | Estado: %s\n",
+                   atual->codigo, atual->nome, atual->tipo, atual->ip, atual->estado);
+            encontrados++;
+        }
+        atual = atual->next;
+    }
+
+    if (!encontrados) {
+        printf("Nenhum equipamento com estado %s encontrado.\n", estado);
+    }
+    printf("------------------------------------------------------------\n");
 }
 
 void listarEquipamentos(const Equipamento *lista) {
