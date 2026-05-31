@@ -30,7 +30,12 @@ typedef struct PilhaItem {
 void adicionarConfiguracao(Configuracao **lista, Configuracao *novo);
 void empilharConfiguracao(PilhaItem **pilha, Configuracao *config);
 Configuracao *desempilharConfiguracao(PilhaItem **pilha);
-void configuracoes_carregar(Configuracao **lista);
+void registarConfiguracao(Configuracao **lista, PilhaItem **pilha);
+void reverterUltimaConfiguracao(PilhaItem **pilha);
+void consultarUltimaConfiguracao(const PilhaItem *pilha);
+void consultarNConfiguracoes(const Configuracao *lista, int n);
+void consultarHistoricoEquipamento(const Configuracao *lista, int codigoEquipamento);
+void configuracoes_carregar(Configuracao **lista, PilhaItem **pilha);
 void configuracoes_salvar(const Configuracao *lista);
 void liberarConfiguracoes(Configuracao **lista);
 void liberarPilha(PilhaItem **pilha);

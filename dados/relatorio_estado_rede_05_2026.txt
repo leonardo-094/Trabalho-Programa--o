@@ -1,0 +1,19 @@
+Relatório de estado da rede
+===========================
+Total de equipamentos: 5
+Equipamentos operacionais: 4
+Equipamentos em falha: 1
+Equipamentos em manutenção: 0
+Equipamentos desativados: 0
+Total de incidentes: 10
+Incidentes pendentes: 7
+Leituras anómalas de sensores: 4
+
+Lista de equipamentos:
+Código | Nome | IP | Estado
+-------------------------------------------
+2 | 1 | 192.168.1.1 | Operacional
+3 | Switch Core | 192.168.1.2 | Operacional
+4 | Access Point | 192.168.1.3 | Operacional
+5 | Servidor | 192.168.1.4 | Em Falha
+6 | Falha Teste | 192.168.99.99 | Operacional

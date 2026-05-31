@@ -35,7 +35,7 @@ void carregarDados(Sistema *sys) {
     printf("Carregando dados automaticamente de ficheiros binários...\n");
     equipamentos_carregar(&sys->equipamentos, &sys->proximoCodigoEquipamento);
     incidentes_carregar(&sys->incidentes, &sys->proximoIdIncidente, &sys->filaAtendimento);
-    configuracoes_carregar(&sys->configuracoes);
+    configuracoes_carregar(&sys->configuracoes, &sys->pilhaConfiguracoes);
     sensores_carregar(&sys->leituras);
 }
 
@@ -378,15 +378,31 @@ void abrirMenuConfiguracoes(Sistema *sys) {
         printf("\n=== Registo de Configurações ===\n");
         printf("1. Registar nova configuração\n");
         printf("2. Reverter última configuração\n");
+        printf("3. Consultar última configuração\n");
+        printf("4. Consultar N últimas configurações\n");
+        printf("5. Consultar histórico de equipamento\n");
         printf("0. Voltar\n");
         opcao = lerInteiro("Escolha uma opção: ");
         switch (opcao) {
             case 1:
-                printf("Registo de configuração ainda não implementado.\n");
+                registarConfiguracao(&sys->configuracoes, &sys->pilhaConfiguracoes);
                 break;
             case 2:
-                printf("Reversão de configuração ainda não implementada.\n");
+                reverterUltimaConfiguracao(&sys->pilhaConfiguracoes);
                 break;
+            case 3:
+                consultarUltimaConfiguracao(sys->pilhaConfiguracoes);
+                break;
+            case 4: {
+                int n = lerInteiro("Número de configurações a consultar: ");
+                consultarNConfiguracoes(sys->configuracoes, n);
+                break;
+            }
+            case 5: {
+                int codigo = lerInteiro("Código do equipamento a consultar: ");
+                consultarHistoricoEquipamento(sys->configuracoes, codigo);
+                break;
+            }
             case 0:
                 break;
             default:
