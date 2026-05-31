@@ -1,2 +1,3 @@
 [2026-05-31 15:52:52] Equipamento 1 (1) IP 8.8.8.8 - Teste de ping concluído - Respondeu
 [2026-05-31 15:53:19] Equipamento 1 (1) IP 8.8.8.8 - Teste de ping concluído - Respondeu
+[2026-05-31 16:23:23] Equipamento 1 (1) IP 8.8.8.8 - Teste de ping concluído - Respondeu

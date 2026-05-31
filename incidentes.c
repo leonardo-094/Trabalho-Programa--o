@@ -69,7 +69,133 @@ Incidente *desenfileirarIncidente(FilaItem **fila) {
     return incidente;
 }
 
-void incidentes_carregar(Incidente **lista, int *proximoId) {
+bool processarProximoIncidente(FilaItem **fila) {
+    Incidente *inc = desenfileirarIncidente(fila);
+    if (!inc) {
+        printf("Nenhum incidente na fila de atendimento.\n");
+        return false;
+    }
+    strcpy(inc->estado, "Em Curso");
+    printf("Incidente %d em curso:\n", inc->id);
+    printf("Origem: %s\n", inc->origem);
+    printf("Código do equipamento: %d\n", inc->codigoEquipamento);
+    printf("Código do sensor: %s\n", inc->codigoSensor);
+    printf("Tipo: %s\n", inc->tipo);
+    printf("Descrição: %s\n", inc->descricao);
+    printf("Prioridade: %s\n", inc->prioridade);
+    printf("Estado: %s\n", inc->estado);
+    printf("Criado: %s\n", inc->criado);
+    return true;
+}
+
+bool concluirIncidente(Incidente *lista, int id) {
+    Incidente *atual = lista;
+    while (atual) {
+        if (atual->id == id) {
+            strcpy(atual->estado, "Concluido");
+            agoraFormato(atual->concluido, MAX_DATA);
+            printf("Incidente %d concluído em %s.\n", id, atual->concluido);
+            return true;
+        }
+        atual = atual->next;
+    }
+    printf("Incidente %d não encontrado.\n", id);
+    return false;
+}
+
+void listarIncidentesPorEstado(const Incidente *lista, const char *estado) {
+    const Incidente *atual = lista;
+    int contador = 0;
+    printf("\nIncidentes com estado %s:\n", estado);
+    printf("------------------------------------------------------------\n");
+    while (atual) {
+        if (strcmp(atual->estado, estado) == 0) {
+            printf("ID: %d | Equipamento: %d | Sensor: %s | Tipo: %s | Prioridade: %s | Estado: %s\n",
+                   atual->id, atual->codigoEquipamento, atual->codigoSensor, atual->tipo, atual->prioridade, atual->estado);
+            contador++;
+        }
+        atual = atual->next;
+    }
+    if (contador == 0) {
+        printf("Nenhum incidente encontrado com estado %s.\n", estado);
+    }
+    printf("------------------------------------------------------------\n");
+}
+
+void listarIncidentesPorEquipamento(const Incidente *lista, int codigoEquipamento) {
+    const Incidente *atual = lista;
+    int contador = 0;
+    printf("\nIncidentes do equipamento %d:\n", codigoEquipamento);
+    printf("------------------------------------------------------------\n");
+    while (atual) {
+        if (atual->codigoEquipamento == codigoEquipamento) {
+            printf("ID: %d | Sensor: %s | Tipo: %s | Prioridade: %s | Estado: %s\n",
+                   atual->id, atual->codigoSensor, atual->tipo, atual->prioridade, atual->estado);
+            contador++;
+        }
+        atual = atual->next;
+    }
+    if (contador == 0) {
+        printf("Nenhum incidente encontrado para o equipamento %d.\n", codigoEquipamento);
+    }
+    printf("------------------------------------------------------------\n");
+}
+
+void listarIncidentesPorSensor(const Incidente *lista, const char *codigoSensor) {
+    const Incidente *atual = lista;
+    int contador = 0;
+    printf("\nIncidentes do sensor %s:\n", codigoSensor);
+    printf("------------------------------------------------------------\n");
+    while (atual) {
+        if (strcmp(atual->codigoSensor, codigoSensor) == 0) {
+            printf("ID: %d | Equipamento: %d | Tipo: %s | Prioridade: %s | Estado: %s\n",
+                   atual->id, atual->codigoEquipamento, atual->tipo, atual->prioridade, atual->estado);
+            contador++;
+        }
+        atual = atual->next;
+    }
+    if (contador == 0) {
+        printf("Nenhum incidente encontrado para o sensor %s.\n", codigoSensor);
+    }
+    printf("------------------------------------------------------------\n");
+}
+
+void listarIncidentesPorPrioridade(const Incidente *lista, const char *prioridade) {
+    const Incidente *atual = lista;
+    int contador = 0;
+    printf("\nIncidentes com prioridade %s:\n", prioridade);
+    printf("------------------------------------------------------------\n");
+    while (atual) {
+        if (strcmp(atual->prioridade, prioridade) == 0) {
+            printf("ID: %d | Equipamento: %d | Sensor: %s | Tipo: %s | Estado: %s\n",
+                   atual->id, atual->codigoEquipamento, atual->codigoSensor, atual->tipo, atual->estado);
+            contador++;
+        }
+        atual = atual->next;
+    }
+    if (contador == 0) {
+        printf("Nenhum incidente encontrado com prioridade %s.\n", prioridade);
+    }
+    printf("------------------------------------------------------------\n");
+}
+
+Incidente *criarIncidenteManual(int id) {
+    char origem[MAX_TIPO];
+    char codigoSensor[MAX_NOME];
+    char tipo[MAX_TIPO];
+    char descricao[MAX_DESCRICAO];
+    char prioridade[MAX_PRIORIDADE];
+    int codigoEquipamento = lerInteiro("Código do equipamento associado: ");
+    lerTexto("Origem do incidente: ", origem, MAX_TIPO);
+    lerTexto("Código do sensor (se aplicável): ", codigoSensor, MAX_NOME);
+    lerTexto("Tipo do incidente: ", tipo, MAX_TIPO);
+    lerTexto("Descrição do incidente: ", descricao, MAX_DESCRICAO);
+    lerTexto("Prioridade (Alta/Média/Baixa): ", prioridade, MAX_PRIORIDADE);
+
+    return criarIncidente(id, origem, codigoEquipamento, codigoSensor, tipo, descricao, prioridade);
+}
+
+void incidentes_carregar(Incidente **lista, int *proximoId, FilaItem **fila) {
     FILE *f = fopen(INCIDENTES_FILE, "rb");
     if (!f) return;
     IncidenteData data;
@@ -99,6 +225,9 @@ void incidentes_carregar(Incidente **lista, int *proximoId) {
         novo->concluido[MAX_DATA - 1] = '\0';
         novo->next = NULL;
         appendIncidente(lista, novo);
+        if (strcmp(novo->estado, "Pendente") == 0 && fila) {
+            enfileirarIncidente(fila, novo);
+        }
         if (novo->id > maxId) {
             maxId = novo->id;
         }

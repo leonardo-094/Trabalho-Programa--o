@@ -39,10 +39,17 @@ typedef struct FilaItem {
 
 Incidente *criarIncidente(int id, const char *origem, int codigoEquipamento, const char *codigoSensor,
                           const char *tipo, const char *descricao, const char *prioridade);
+Incidente *criarIncidenteManual(int id);
+bool processarProximoIncidente(FilaItem **fila);
+bool concluirIncidente(Incidente *lista, int id);
+void listarIncidentesPorEstado(const Incidente *lista, const char *estado);
+void listarIncidentesPorEquipamento(const Incidente *lista, int codigoEquipamento);
+void listarIncidentesPorSensor(const Incidente *lista, const char *codigoSensor);
+void listarIncidentesPorPrioridade(const Incidente *lista, const char *prioridade);
 void adicionarIncidente(Incidente **lista, Incidente *novo);
 void enfileirarIncidente(FilaItem **fila, Incidente *incidente);
 Incidente *desenfileirarIncidente(FilaItem **fila);
-void incidentes_carregar(Incidente **lista, int *proximoId);
+void incidentes_carregar(Incidente **lista, int *proximoId, FilaItem **fila);
 void incidentes_salvar(const Incidente *lista);
 void liberarIncidentes(Incidente **lista);
 void liberarFila(FilaItem **fila);

@@ -34,7 +34,7 @@ Sistema criarSistema(void) {
 void carregarDados(Sistema *sys) {
     printf("Carregando dados automaticamente de ficheiros binários...\n");
     equipamentos_carregar(&sys->equipamentos, &sys->proximoCodigoEquipamento);
-    incidentes_carregar(&sys->incidentes, &sys->proximoIdIncidente);
+    incidentes_carregar(&sys->incidentes, &sys->proximoIdIncidente, &sys->filaAtendimento);
     configuracoes_carregar(&sys->configuracoes);
     sensores_carregar(&sys->leituras);
 }
@@ -299,19 +299,54 @@ void abrirMenuIncidentes(Sistema *sys) {
         printf("\n=== Incidentes Técnicos ===\n");
         printf("1. Criar incidente manualmente\n");
         printf("2. Processar próximo incidente da fila\n");
-        printf("3. Listar incidentes\n");
+        printf("3. Concluir incidente\n");
+        printf("4. Listar incidentes por estado\n");
+        printf("5. Listar incidentes por equipamento\n");
+        printf("6. Listar incidentes por sensor\n");
+        printf("7. Listar incidentes por prioridade\n");
         printf("0. Voltar\n");
         opcao = lerInteiro("Escolha uma opção: ");
         switch (opcao) {
-            case 1:
-                printf("Criação manual de incidente ainda não implementada.\n");
+            case 1: {
+                Incidente *inc = criarIncidenteManual(sys->proximoIdIncidente++);
+                if (inc) {
+                    adicionarIncidente(&sys->incidentes, inc);
+                    enfileirarIncidente(&sys->filaAtendimento, inc);
+                    printf("Incidente %d criado e adicionado à fila de atendimento.\n", inc->id);
+                }
                 break;
+            }
             case 2:
-                printf("Processamento da fila ainda não implementado.\n");
+                processarProximoIncidente(&sys->filaAtendimento);
                 break;
-            case 3:
-                printf("Listagem de incidentes ainda não implementada.\n");
+            case 3: {
+                int id = lerInteiro("ID do incidente a concluir: ");
+                concluirIncidente(sys->incidentes, id);
                 break;
+            }
+            case 4: {
+                char estado[MAX_ESTADO];
+                lerTexto("Estado a filtrar: ", estado, MAX_ESTADO);
+                listarIncidentesPorEstado(sys->incidentes, estado);
+                break;
+            }
+            case 5: {
+                int codigo = lerInteiro("Código do equipamento a filtrar: ");
+                listarIncidentesPorEquipamento(sys->incidentes, codigo);
+                break;
+            }
+            case 6: {
+                char codigoSensor[MAX_NOME];
+                lerTexto("Código do sensor a filtrar: ", codigoSensor, MAX_NOME);
+                listarIncidentesPorSensor(sys->incidentes, codigoSensor);
+                break;
+            }
+            case 7: {
+                char prioridade[MAX_PRIORIDADE];
+                lerTexto("Prioridade a filtrar: ", prioridade, MAX_PRIORIDADE);
+                listarIncidentesPorPrioridade(sys->incidentes, prioridade);
+                break;
+            }
             case 0:
                 break;
             default:
