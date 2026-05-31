@@ -3,6 +3,9 @@
 
 #include "utils.h"
 
+typedef struct Incidente Incidente;
+typedef struct FilaItem FilaItem;
+
 typedef struct LeituraSensor {
     char codigo[MAX_NOME];
     char tipo[MAX_TIPO];
@@ -21,6 +24,10 @@ typedef struct LeituraSensorData {
 } LeituraSensorData;
 
 void adicionarLeitura(LeituraSensor **lista, LeituraSensor *novo);
+void importarSensores(LeituraSensor **leituras, Incidente **incidentes, FilaItem **fila, int *proximoId);
+void listarLeituras(const LeituraSensor *lista);
+LeituraSensor *pesquisarSensorPorCodigo(const LeituraSensor *lista, const char *codigo);
+void listarAnomalias(const LeituraSensor *lista);
 void sensores_carregar(LeituraSensor **lista);
 void sensores_salvar(const LeituraSensor *lista);
 void liberarLeituras(LeituraSensor **lista);

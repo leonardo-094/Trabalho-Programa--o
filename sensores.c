@@ -1,4 +1,5 @@
 #include "sensores.h"
+#include "incidentes.h"
 
 static const char *LEITURAS_FILE = "dados/leituras_sensores.dat";
 
@@ -70,4 +71,117 @@ void liberarLeituras(LeituraSensor **lista) {
         free(rem);
     }
     *lista = NULL;
+}
+
+void importarSensores(LeituraSensor **leituras, Incidente **incidentes, FilaItem **fila, int *proximoId) {
+    FILE *f = fopen("dados/sensores_rack.txt", "r");
+    if (!f) {
+        printf("Não foi possível abrir o ficheiro dados/sensores_rack.txt\n");
+        return;
+    }
+
+    char linha[512];
+    int contador = 0;
+    char dataHora[MAX_DATA];
+    agoraFormato(dataHora, MAX_DATA);
+    FILE *log = fopen("dados/log_sensores.txt", "a");
+
+    liberarLeituras(leituras);
+
+    while (fgets(linha, sizeof(linha), f)) {
+        if (linha[0] == '\n' || linha[0] == '\0') continue;
+
+        char codigo[MAX_NOME];
+        char tipo[MAX_TIPO];
+        float valor;
+        char unidade[MAX_UNIDADE];
+        char estado[MAX_ESTADO];
+
+        if (sscanf(linha, "%63[^;];%31[^;];%f;%15[^;];%31[^;\n]", codigo, tipo, &valor, unidade, estado) == 5) {
+            LeituraSensor *nova = malloc(sizeof(LeituraSensor));
+            if (!nova) break;
+            strncpy(nova->codigo, codigo, MAX_NOME);
+            nova->codigo[MAX_NOME - 1] = '\0';
+            strncpy(nova->tipo, tipo, MAX_TIPO);
+            nova->tipo[MAX_TIPO - 1] = '\0';
+            nova->valor = valor;
+            strncpy(nova->unidade, unidade, MAX_UNIDADE);
+            nova->unidade[MAX_UNIDADE - 1] = '\0';
+            strncpy(nova->estado, estado, MAX_ESTADO);
+            nova->estado[MAX_ESTADO - 1] = '\0';
+            nova->next = NULL;
+            appendLeitura(leituras, nova);
+            contador++;
+
+            if (strcmp(estado, "AVISO") == 0 || strcmp(estado, "CRITICO") == 0 || strcmp(estado, "FALHA_REDE") == 0) {
+                char descricao[MAX_DESCRICAO];
+                snprintf(descricao, sizeof(descricao), "Leitura anómala do sensor %s: %f %s (estado: %s)", codigo, valor, unidade, estado);
+                Incidente *inc = criarIncidente(*proximoId, "Sensores", 0, codigo, tipo, descricao, "Alta");
+                if (inc) {
+                    (*proximoId)++;
+                    adicionarIncidente(incidentes, inc);
+                    enfileirarIncidente(fila, inc);
+                }
+            }
+        }
+    }
+
+    if (log) {
+        fprintf(log, "[%s] Importação de sensores concluída: %d leituras importadas\n", dataHora, contador);
+        fclose(log);
+    }
+
+    fclose(f);
+    printf("Importação concluída: %d leituras importadas.\n", contador);
+    printf("Log gravado em dados/log_sensores.txt\n");
+}
+
+void listarLeituras(const LeituraSensor *lista) {
+    if (!lista) {
+        printf("Nenhuma leitura registada.\n");
+        return;
+    }
+    printf("\nLeituras de sensores:\n");
+    printf("------------------------------------------------------------\n");
+    const LeituraSensor *atual = lista;
+    while (atual) {
+        printf("Código: %s | Tipo: %s | Valor: %.2f %s | Estado: %s\n",
+               atual->codigo, atual->tipo, atual->valor, atual->unidade, atual->estado);
+        atual = atual->next;
+    }
+    printf("------------------------------------------------------------\n");
+}
+
+LeituraSensor *pesquisarSensorPorCodigo(const LeituraSensor *lista, const char *codigo) {
+    const LeituraSensor *atual = lista;
+    while (atual) {
+        if (strcmp(atual->codigo, codigo) == 0) {
+            return (LeituraSensor *)atual;
+        }
+        atual = atual->next;
+    }
+    return NULL;
+}
+
+void listarAnomalias(const LeituraSensor *lista) {
+    if (!lista) {
+        printf("Nenhuma leitura registada.\n");
+        return;
+    }
+    printf("\nLeituras anómalas:\n");
+    printf("------------------------------------------------------------\n");
+    const LeituraSensor *atual = lista;
+    int contador = 0;
+    while (atual) {
+        if (strcmp(atual->estado, "AVISO") == 0 || strcmp(atual->estado, "CRITICO") == 0 || strcmp(atual->estado, "FALHA_REDE") == 0) {
+            printf("Código: %s | Tipo: %s | Valor: %.2f %s | Estado: %s\n",
+                   atual->codigo, atual->tipo, atual->valor, atual->unidade, atual->estado);
+            contador++;
+        }
+        atual = atual->next;
+    }
+    if (contador == 0) {
+        printf("Nenhuma leitura anómala encontrada.\n");
+    }
+    printf("------------------------------------------------------------\n");
 }

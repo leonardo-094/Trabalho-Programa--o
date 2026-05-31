@@ -276,14 +276,31 @@ void abrirMenuSensores(Sistema *sys) {
         printf("\n=== Monitorização de Sensores ===\n");
         printf("1. Importar leituras de sensores\n");
         printf("2. Listar leituras\n");
+        printf("3. Pesquisar sensor por código\n");
+        printf("4. Listar anomalias\n");
         printf("0. Voltar\n");
         opcao = lerInteiro("Escolha uma opção: ");
         switch (opcao) {
             case 1:
-                printf("Importação de sensores ainda não implementada.\n");
+                importarSensores(&sys->leituras, &sys->incidentes, &sys->filaAtendimento, &sys->proximoIdIncidente);
                 break;
             case 2:
-                printf("Listagem de leituras ainda não implementada.\n");
+                listarLeituras(sys->leituras);
+                break;
+            case 3: {
+                char codigo[MAX_NOME];
+                lerTexto("Código do sensor a pesquisar: ", codigo, MAX_NOME);
+                LeituraSensor *leitura = pesquisarSensorPorCodigo(sys->leituras, codigo);
+                if (leitura) {
+                    printf("Sensor encontrado: Código: %s | Tipo: %s | Valor: %.2f %s | Estado: %s\n",
+                           leitura->codigo, leitura->tipo, leitura->valor, leitura->unidade, leitura->estado);
+                } else {
+                    printf("Nenhum sensor com código %s encontrado.\n", codigo);
+                }
+                break;
+            }
+            case 4:
+                listarAnomalias(sys->leituras);
                 break;
             case 0:
                 break;

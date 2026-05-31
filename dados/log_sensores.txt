@@ -1,0 +1,1 @@
+[2026-05-31 17:09:01] Importação de sensores concluída: 4 leituras importadas
