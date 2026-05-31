@@ -157,6 +157,84 @@ void abrirMenuInventario(Sistema *sys) {
     } while (opcao != 0);
 }
 
+static bool executarPingDetectarResposta(const char *ficheiroResultado) {
+    FILE *f = fopen(ficheiroResultado, "r");
+    if (!f) {
+        return false;
+    }
+
+    char linha[256];
+    bool respondeu = false;
+    while (fgets(linha, sizeof(linha), f)) {
+        if (strstr(linha, "TTL=") || strstr(linha, "ttl=") || strstr(linha, "bytes from")) {
+            respondeu = true;
+            break;
+        }
+    }
+    fclose(f);
+    return respondeu;
+}
+
+static void registarLogMonitorizacao(const Equipamento *eq, const char *mensagem, bool respondeu) {
+    char dataHora[MAX_DATA];
+    agoraFormato(dataHora, MAX_DATA);
+    FILE *log = fopen("dados/log_monitorizacao.txt", "a");
+    if (!log) {
+        return;
+    }
+    fprintf(log, "[%s] Equipamento %d (%s) IP %s - %s - %s\n",
+            dataHora, eq->codigo, eq->nome, eq->ip, mensagem, respondeu ? "Respondeu" : "Não respondeu");
+    fclose(log);
+}
+
+static void executarPingEquipamento(Sistema *sys, Equipamento *eq) {
+    if (!eq) {
+        printf("Equipamento inválido.\n");
+        return;
+    }
+
+    char comando[256];
+#ifdef _WIN32
+    snprintf(comando, sizeof(comando), "ping -n 4 %s > dados/resultado_ping.txt 2>&1", eq->ip);
+#else
+    snprintf(comando, sizeof(comando), "ping -c 4 %s > dados/resultado_ping.txt 2>&1", eq->ip);
+#endif
+    system(comando);
+
+    bool respondeu = executarPingDetectarResposta("dados/resultado_ping.txt");
+    agoraFormato(eq->ultimaVerificacao, MAX_DATA);
+
+    if (!respondeu) {
+        strcpy(eq->estado, "Em Falha");
+
+        char descricao[MAX_DESCRICAO];
+        snprintf(descricao, sizeof(descricao), "Falha de ping para equipamento %d (%s).", eq->codigo, eq->nome);
+        Incidente *inc = criarIncidente(sys->proximoIdIncidente++, "Monitorizacao", eq->codigo, "", "Conectividade", descricao, "Alta");
+        if (inc) {
+            adicionarIncidente(&sys->incidentes, inc);
+            enfileirarIncidente(&sys->filaAtendimento, inc);
+        }
+    }
+
+    registarLogMonitorizacao(eq, respondeu ? "Teste de ping concluído" : "Teste de ping falhou", respondeu);
+    printf("Resultado do ping para %s (%s): %s\n", eq->nome, eq->ip, respondeu ? "Respondeu" : "Não respondeu");
+    printf("Saída gravada em dados/resultado_ping.txt\n");
+}
+
+static void executarPingTodosEquipamentos(Sistema *sys) {
+    if (!sys->equipamentos) {
+        printf("Nenhum equipamento registado para testar.\n");
+        return;
+    }
+
+    Equipamento *atual = sys->equipamentos;
+    while (atual) {
+        printf("\nExecutando ping para equipamento %d (%s)...\n", atual->codigo, atual->nome);
+        executarPingEquipamento(sys, atual);
+        atual = atual->next;
+    }
+}
+
 void abrirMenuConectividade(Sistema *sys) {
     int opcao;
     do {
@@ -166,11 +244,23 @@ void abrirMenuConectividade(Sistema *sys) {
         printf("0. Voltar\n");
         opcao = lerInteiro("Escolha uma opção: ");
         switch (opcao) {
-            case 1:
-                printf("Funcionalidade de ping ainda não implementada.\n");
+            case 1: {
+                if (!sys->equipamentos) {
+                    printf("Nenhum equipamento registado.\n");
+                    break;
+                }
+                listarEquipamentos(sys->equipamentos);
+                int codigo = lerInteiro("Escolha o código do equipamento para ping: ");
+                Equipamento *eq = pesquisarPorCodigo(sys->equipamentos, codigo);
+                if (!eq) {
+                    printf("Equipamento %d não encontrado.\n", codigo);
+                } else {
+                    executarPingEquipamento(sys, eq);
+                }
                 break;
+            }
             case 2:
-                printf("Funcionalidade de ping geral ainda não implementada.\n");
+                executarPingTodosEquipamentos(sys);
                 break;
             case 0:
                 break;
