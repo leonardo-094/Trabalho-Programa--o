@@ -3,6 +3,7 @@
 
 #include "utils.h"
 
+// Estrutura de um incidente registado
 typedef struct Incidente {
     int id;
     char origem[MAX_TIPO];
@@ -18,6 +19,7 @@ typedef struct Incidente {
     struct Incidente *next;
 } Incidente;
 
+// Estrutura usada para guardar um incidente em ficheiro binário
 typedef struct IncidenteData {
     int id;
     char origem[MAX_TIPO];
@@ -32,6 +34,7 @@ typedef struct IncidenteData {
     char concluido[MAX_DATA];
 } IncidenteData;
 
+// Item da fila de atendimento dos incidentes pendentes
 typedef struct FilaItem {
     Incidente *incidente;
     struct FilaItem *next;

@@ -1,5 +1,6 @@
 #include "relatorios.h"
 
+// Cria um ficheiro de texto com o estado atual da rede, equipamentos e incidentes
 void gerarRelatorioEstado(const Equipamento *equipamentos, const Incidente *incidentes, const LeituraSensor *leituras) {
     char nomeFicheiro[128];
     time_t t = time(NULL);
@@ -75,6 +76,7 @@ void gerarRelatorioEstado(const Equipamento *equipamentos, const Incidente *inci
     printf("Relatório de estado gerado em %s\n", nomeFicheiro);
 }
 
+// Cria um ficheiro de texto com o resumo mensal dos incidentes
 void gerarRelatorioMensal(const Incidente *incidentes) {
     char nomeFicheiro[128];
     time_t t = time(NULL);

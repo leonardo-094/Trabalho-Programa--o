@@ -1,12 +1,14 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+// Bibliotecas usadas no projeto.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <stdbool.h>
 
+// Tamanhos máximos das strings
 #define MAX_NOME 64
 #define MAX_TIPO 32
 #define MAX_MARCA 32
@@ -21,6 +23,7 @@
 #define MAX_TECNICO 32
 #define MAX_UNIDADE 16
 
+// Funções auxiliares 
 void limparBuffer(void);
 int lerInteiro(const char *prompt);
 void lerTexto(const char *prompt, char *destino, int tamanho);

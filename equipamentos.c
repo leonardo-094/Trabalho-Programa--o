@@ -1,8 +1,10 @@
 #include "equipamentos.h"
 #include "incidentes.h"
 
+// Ficheiro onde os equipamentos são guardados
 static const char *EQUIPAMENTOS_FILE = "dados/equipamentos.dat";
 
+// Verifica se o estado é válido
 static bool validarEstadoEquipamento(const char *estado) {
     return strcmp(estado, "Operacional") == 0
         || strcmp(estado, "Em Falha") == 0
@@ -11,6 +13,7 @@ static bool validarEstadoEquipamento(const char *estado) {
         || strcmp(estado, "Desativado") == 0;
 }
 
+// Ajusta o texto do estado para o formato correto 
 static void normalizarEstadoEquipamento(char *dest, const char *estado) {
     if (strcmp(estado, "Em Manutencao") == 0) {
         strncpy(dest, "Em Manutenção", MAX_ESTADO);
@@ -20,6 +23,7 @@ static void normalizarEstadoEquipamento(char *dest, const char *estado) {
     dest[MAX_ESTADO - 1] = '\0';
 }
 
+// Inserir um equipamento no final da lista
 static void appendEquipamento(Equipamento **lista, Equipamento *novo) {
     if (!*lista) {
         *lista = novo;
@@ -32,6 +36,7 @@ static void appendEquipamento(Equipamento **lista, Equipamento *novo) {
     }
 }
 
+// Cria um novo equipamento fornecidos pelo utilizador.
 Equipamento *criarEquipamento(int codigo) {
     Equipamento *novo = malloc(sizeof(Equipamento));
     if (!novo) return NULL;
@@ -49,12 +54,14 @@ Equipamento *criarEquipamento(int codigo) {
     return novo;
 }
 
+// Adiciona um equipamento à lista e mostra uma mensagem de confirmação.
 void adicionarEquipamento(Equipamento **lista, Equipamento *novo) {
     if (!novo) return;
     appendEquipamento(lista, novo);
     printf("Equipamento %s (%d) adicionado com sucesso.\n", novo->nome, novo->codigo);
 }
 
+// Procura um equipamento pelo seu código numérico
 Equipamento *pesquisarPorCodigo(const Equipamento *lista, int codigo) {
     const Equipamento *atual = lista;
     while (atual) {
@@ -66,6 +73,7 @@ Equipamento *pesquisarPorCodigo(const Equipamento *lista, int codigo) {
     return NULL;
 }
 
+// Procura um equipamento pelo endereço IP
 Equipamento *pesquisarPorIP(const Equipamento *lista, const char *ip) {
     const Equipamento *atual = lista;
     while (atual) {
@@ -77,6 +85,7 @@ Equipamento *pesquisarPorIP(const Equipamento *lista, const char *ip) {
     return NULL;
 }
 
+// Procura um equipamento pelo endereço MAC
 Equipamento *pesquisarPorMAC(const Equipamento *lista, const char *mac) {
     const Equipamento *atual = lista;
     while (atual) {
@@ -88,6 +97,7 @@ Equipamento *pesquisarPorMAC(const Equipamento *lista, const char *mac) {
     return NULL;
 }
 
+// Remove um equipamento
 bool removerEquipamento(Equipamento **lista, const Incidente *incidentes, int codigo) {
     const Incidente *inc = incidentes;
     while (inc) {
@@ -120,6 +130,7 @@ bool removerEquipamento(Equipamento **lista, const Incidente *incidentes, int co
     return true;
 }
 
+// Altera os dados de um equipamento
 bool alterarEquipamento(Equipamento *lista, int codigo) {
     Equipamento *eq = pesquisarPorCodigo(lista, codigo);
     if (!eq) {
@@ -147,6 +158,7 @@ bool alterarEquipamento(Equipamento *lista, int codigo) {
     return true;
 }
 
+// Atualiza apenas o estado de um equipamento
 bool alterarEstadoEquipamento(Equipamento *lista, int codigo, const char *novoEstado) {
     Equipamento *eq = pesquisarPorCodigo(lista, codigo);
     if (!eq) {
@@ -160,6 +172,7 @@ bool alterarEstadoEquipamento(Equipamento *lista, int codigo, const char *novoEs
     return true;
 }
 
+// Mostra todos os equipamentos de um determinado tipo
 void listarPorTipo(const Equipamento *lista, const char *tipo) {
     if (!lista) {
         printf("Nenhum equipamento registado.\n");
@@ -185,6 +198,7 @@ void listarPorTipo(const Equipamento *lista, const char *tipo) {
     printf("------------------------------------------------------------\n");
 }
 
+// Mostra todos os equipamentos com um determinado estado
 void listarPorEstado(const Equipamento *lista, const char *estado) {
     if (!lista) {
         printf("Nenhum equipamento registado.\n");
@@ -210,6 +224,7 @@ void listarPorEstado(const Equipamento *lista, const char *estado) {
     printf("------------------------------------------------------------\n");
 }
 
+// Lista todos os equipamentos registados
 void listarEquipamentos(const Equipamento *lista) {
     if (!lista) {
         printf("Nenhum equipamento registado.\n");
@@ -226,6 +241,7 @@ void listarEquipamentos(const Equipamento *lista) {
     printf("------------------------------------------------------------\n");
 }
 
+// Lê os equipamentos guardados em ficheiro binário e reconstruí a lista
 void equipamentos_carregar(Equipamento **lista, int *proximoCodigo) {
     FILE *f = fopen(EQUIPAMENTOS_FILE, "rb");
     if (!f) return;
@@ -263,6 +279,7 @@ void equipamentos_carregar(Equipamento **lista, int *proximoCodigo) {
     fclose(f);
 }
 
+// Guarda a lista atual de equipamentos em ficheiro binário
 void equipamentos_salvar(const Equipamento *lista) {
     FILE *f = fopen(EQUIPAMENTOS_FILE, "wb");
     if (!f) return;
@@ -294,6 +311,7 @@ void equipamentos_salvar(const Equipamento *lista) {
     fclose(f);
 }
 
+// Liberta toda a memória ocupada pela lista de equipamentos
 void liberarEquipamentos(Equipamento **lista) {
     Equipamento *atual = *lista;
     while (atual) {

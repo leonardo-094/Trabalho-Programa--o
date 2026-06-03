@@ -1,7 +1,9 @@
 #include "incidentes.h"
 
+// Os incidentes são guardados.
 static const char *INCIDENTES_FILE = "dados/incidentes.dat";
 
+// Insere um incidente no fim da lista
 static void appendIncidente(Incidente **lista, Incidente *novo) {
     if (!*lista) {
         *lista = novo;
@@ -14,6 +16,7 @@ static void appendIncidente(Incidente **lista, Incidente *novo) {
     }
 }
 
+// Cria um novo incidente com estado inicial pendente
 Incidente *criarIncidente(int id, const char *origem, int codigoEquipamento, const char *codigoSensor,
                           const char *tipo, const char *descricao, const char *prioridade) {
     Incidente *novo = malloc(sizeof(Incidente));
@@ -38,11 +41,13 @@ Incidente *criarIncidente(int id, const char *origem, int codigoEquipamento, con
     return novo;
 }
 
+// Adiciona um incidente à lista principal
 void adicionarIncidente(Incidente **lista, Incidente *novo) {
     if (!novo) return;
     appendIncidente(lista, novo);
 }
 
+// Coloca um incidente pendente
 void enfileirarIncidente(FilaItem **fila, Incidente *incidente) {
     if (!incidente) return;
     FilaItem *item = malloc(sizeof(FilaItem));
@@ -60,6 +65,7 @@ void enfileirarIncidente(FilaItem **fila, Incidente *incidente) {
     }
 }
 
+// Retira o próximo incidente da fila
 Incidente *desenfileirarIncidente(FilaItem **fila) {
     if (!*fila) return NULL;
     FilaItem *primeiro = *fila;
@@ -69,6 +75,7 @@ Incidente *desenfileirarIncidente(FilaItem **fila) {
     return incidente;
 }
 
+// Processa o incidente e mostra os detalhes
 bool processarProximoIncidente(FilaItem **fila) {
     Incidente *inc = desenfileirarIncidente(fila);
     if (!inc) {
@@ -88,6 +95,7 @@ bool processarProximoIncidente(FilaItem **fila) {
     return true;
 }
 
+// Marca um incidente como concluído e regista a hora da conclusão
 bool concluirIncidente(Incidente *lista, int id) {
     Incidente *atual = lista;
     while (atual) {
@@ -103,6 +111,7 @@ bool concluirIncidente(Incidente *lista, int id) {
     return false;
 }
 
+// Mostra os incidentes que estão num estado específico
 void listarIncidentesPorEstado(const Incidente *lista, const char *estado) {
     const Incidente *atual = lista;
     int contador = 0;
@@ -122,6 +131,7 @@ void listarIncidentesPorEstado(const Incidente *lista, const char *estado) {
     printf("------------------------------------------------------------\n");
 }
 
+// Mostra os incidentes associados a um equipamento
 void listarIncidentesPorEquipamento(const Incidente *lista, int codigoEquipamento) {
     const Incidente *atual = lista;
     int contador = 0;
@@ -141,6 +151,7 @@ void listarIncidentesPorEquipamento(const Incidente *lista, int codigoEquipament
     printf("------------------------------------------------------------\n");
 }
 
+// Mostra os incidentes ligados a um sensor
 void listarIncidentesPorSensor(const Incidente *lista, const char *codigoSensor) {
     const Incidente *atual = lista;
     int contador = 0;
@@ -160,6 +171,7 @@ void listarIncidentesPorSensor(const Incidente *lista, const char *codigoSensor)
     printf("------------------------------------------------------------\n");
 }
 
+// Mostra os incidentes com uma determinada prioridade
 void listarIncidentesPorPrioridade(const Incidente *lista, const char *prioridade) {
     const Incidente *atual = lista;
     int contador = 0;
@@ -179,6 +191,7 @@ void listarIncidentesPorPrioridade(const Incidente *lista, const char *prioridad
     printf("------------------------------------------------------------\n");
 }
 
+// Cria um incidente manualmente, pedindo os dados ao utilizador
 Incidente *criarIncidenteManual(int id) {
     char origem[MAX_TIPO];
     char codigoSensor[MAX_NOME];
@@ -195,6 +208,7 @@ Incidente *criarIncidenteManual(int id) {
     return criarIncidente(id, origem, codigoEquipamento, codigoSensor, tipo, descricao, prioridade);
 }
 
+// Carrega incidentes do ficheiro binário e reconstrói a fila pendente
 void incidentes_carregar(Incidente **lista, int *proximoId, FilaItem **fila) {
     FILE *f = fopen(INCIDENTES_FILE, "rb");
     if (!f) return;
@@ -236,6 +250,7 @@ void incidentes_carregar(Incidente **lista, int *proximoId, FilaItem **fila) {
     fclose(f);
 }
 
+// Guarda a lista de incidentes em ficheiro binário
 void incidentes_salvar(const Incidente *lista) {
     FILE *f = fopen(INCIDENTES_FILE, "wb");
     if (!f) return;
@@ -268,6 +283,7 @@ void incidentes_salvar(const Incidente *lista) {
     fclose(f);
 }
 
+// Liberta a memória ocupada pela lista de incidentes.
 void liberarIncidentes(Incidente **lista) {
     Incidente *atual = *lista;
     while (atual) {
@@ -278,6 +294,7 @@ void liberarIncidentes(Incidente **lista) {
     *lista = NULL;
 }
 
+// Liberta a memória ocupada pela fila de atendimento
 void liberarFila(FilaItem **fila) {
     while (*fila) {
         FilaItem *rem = *fila;

@@ -5,6 +5,7 @@
 
 typedef struct Incidente Incidente;
 
+// Estrutura principal de um equipamento na lista do sistema.
 typedef struct Equipamento {
     int codigo;
     char nome[MAX_NOME];
@@ -19,6 +20,7 @@ typedef struct Equipamento {
     struct Equipamento *next;
 } Equipamento;
 
+// Estrutura usada para guardar um equipamento em ficheiro binário.
 typedef struct EquipamentoData {
     int codigo;
     char nome[MAX_NOME];

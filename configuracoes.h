@@ -3,6 +3,7 @@
 
 #include "utils.h"
 
+// Estrutura que guarda uma alteração de configuração registada
 typedef struct Configuracao {
     int codigoEquipamento;
     char tipo[MAX_TIPO];
@@ -13,6 +14,7 @@ typedef struct Configuracao {
     struct Configuracao *next;
 } Configuracao;
 
+// Estrutura usada para gravar configurações no ficheiro binário
 typedef struct ConfiguracaoData {
     int codigoEquipamento;
     char tipo[MAX_TIPO];
@@ -22,6 +24,7 @@ typedef struct ConfiguracaoData {
     char tecnico[MAX_TECNICO];
 } ConfiguracaoData;
 
+// Item da pilha para guardar o histórico das últimas configurações
 typedef struct PilhaItem {
     Configuracao *configuracao;
     struct PilhaItem *next;

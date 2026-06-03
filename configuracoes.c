@@ -1,7 +1,9 @@
 #include "configuracoes.h"
 
+// Ficheiro onde o histórico de configurações é guardado
 static const char *CONFIGURACOES_FILE = "dados/configuracoes.dat";
 
+// Cria uma nova entrada a partir dos dados
 static Configuracao *criarConfiguracao(int codigoEquipamento, const char *tipo, const char *valorAnterior,
                                          const char *valorNovo, const char *tecnico) {
     Configuracao *novo = malloc(sizeof(Configuracao));
@@ -20,6 +22,7 @@ static Configuracao *criarConfiguracao(int codigoEquipamento, const char *tipo, 
     return novo;
 }
 
+// Insere uma configuração no fim da lista ligada
 static void appendConfiguracao(Configuracao **lista, Configuracao *novo) {
     if (!*lista) {
         *lista = novo;
@@ -32,11 +35,13 @@ static void appendConfiguracao(Configuracao **lista, Configuracao *novo) {
     }
 }
 
+// Adiciona uma configuração ao histórico
 void adicionarConfiguracao(Configuracao **lista, Configuracao *novo) {
     if (!novo) return;
     appendConfiguracao(lista, novo);
 }
 
+// Regista uma nova configuração e guarda-a também na pilha
 void registarConfiguracao(Configuracao **lista, PilhaItem **pilha) {
     int codigoEquipamento = lerInteiro("Código do equipamento: ");
     char tipo[MAX_TIPO];
@@ -59,6 +64,7 @@ void registarConfiguracao(Configuracao **lista, PilhaItem **pilha) {
     printf("Configuração registada e empilhada com sucesso.\n");
 }
 
+// Reverte a configuração mais recente da pilha.
 void reverterUltimaConfiguracao(PilhaItem **pilha) {
     if (!pilha || !*pilha) {
         printf("Não existem configurações para reverter.\n");
@@ -84,6 +90,7 @@ void reverterUltimaConfiguracao(PilhaItem **pilha) {
     printf("Valor anterior restaurado no registo.\n");
 }
 
+// Mostra a configuração que está no topo da pilha
 void consultarUltimaConfiguracao(const PilhaItem *pilha) {
     if (!pilha) {
         printf("Nenhuma configuração na pilha.\n");
@@ -99,6 +106,7 @@ void consultarUltimaConfiguracao(const PilhaItem *pilha) {
     printf("Data/Hora: %s\n", config->dataHora);
 }
 
+// Mostra as últimas N configurações registadas
 void consultarNConfiguracoes(const Configuracao *lista, int n) {
     if (!lista || n <= 0) {
         printf("Nenhuma configuração para mostrar.\n");
@@ -131,6 +139,7 @@ void consultarNConfiguracoes(const Configuracao *lista, int n) {
     }
 }
 
+// Mostra todo o histórico de um equipamento específico
 void consultarHistoricoEquipamento(const Configuracao *lista, int codigoEquipamento) {
     if (!lista) {
         printf("Nenhuma configuração registada.\n");
@@ -157,6 +166,7 @@ void consultarHistoricoEquipamento(const Configuracao *lista, int codigoEquipame
     }
 }
 
+// Coloca uma configuração no topo da pilha
 void empilharConfiguracao(PilhaItem **pilha, Configuracao *config) {
     if (!config) return;
     PilhaItem *item = malloc(sizeof(PilhaItem));
@@ -166,6 +176,7 @@ void empilharConfiguracao(PilhaItem **pilha, Configuracao *config) {
     *pilha = item;
 }
 
+// Remove e devolve a configuração do topo da pilha
 Configuracao *desempilharConfiguracao(PilhaItem **pilha) {
     if (!*pilha) return NULL;
     PilhaItem *topo = *pilha;
@@ -175,6 +186,7 @@ Configuracao *desempilharConfiguracao(PilhaItem **pilha) {
     return config;
 }
 
+// Carrega o histórico de configurações e reconstruí a pilha
 void configuracoes_carregar(Configuracao **lista, PilhaItem **pilha) {
     FILE *f = fopen(CONFIGURACOES_FILE, "rb");
     if (!f) return;
@@ -202,6 +214,7 @@ void configuracoes_carregar(Configuracao **lista, PilhaItem **pilha) {
     fclose(f);
 }
 
+// Guarda o histórico de configurações num ficheiro binário
 void configuracoes_salvar(const Configuracao *lista) {
     FILE *f = fopen(CONFIGURACOES_FILE, "wb");
     if (!f) return;
@@ -225,6 +238,7 @@ void configuracoes_salvar(const Configuracao *lista) {
     fclose(f);
 }
 
+// Liberta a memória ocupada pela lista de configurações
 void liberarConfiguracoes(Configuracao **lista) {
     Configuracao *atual = *lista;
     while (atual) {
@@ -235,6 +249,7 @@ void liberarConfiguracoes(Configuracao **lista) {
     *lista = NULL;
 }
 
+// Liberta a memória ocupada pela pilha do histórico
 void liberarPilha(PilhaItem **pilha) {
     while (*pilha) {
         PilhaItem *rem = *pilha;

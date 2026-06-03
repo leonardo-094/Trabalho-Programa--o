@@ -1,8 +1,10 @@
 #include "sensores.h"
 #include "incidentes.h"
 
+// Ficheiro onde as leituras de sensores são guardadas
 static const char *LEITURAS_FILE = "dados/leituras_sensores.dat";
 
+// Insere uma leitura no fim da lista ligada.
 static void appendLeitura(LeituraSensor **lista, LeituraSensor *novo) {
     if (!*lista) {
         *lista = novo;
@@ -15,11 +17,13 @@ static void appendLeitura(LeituraSensor **lista, LeituraSensor *novo) {
     }
 }
 
+// Adiciona uma leitura à lista de sensores.
 void adicionarLeitura(LeituraSensor **lista, LeituraSensor *novo) {
     if (!novo) return;
     appendLeitura(lista, novo);
 }
 
+// Carrega as leituras guardadas em ficheiro binário
 void sensores_carregar(LeituraSensor **lista) {
     FILE *f = fopen(LEITURAS_FILE, "rb");
     if (!f) return;
@@ -42,6 +46,7 @@ void sensores_carregar(LeituraSensor **lista) {
     fclose(f);
 }
 
+// Guarda a lista atual de leituras no ficheiro binário
 void sensores_salvar(const LeituraSensor *lista) {
     FILE *f = fopen(LEITURAS_FILE, "wb");
     if (!f) return;
@@ -63,6 +68,7 @@ void sensores_salvar(const LeituraSensor *lista) {
     fclose(f);
 }
 
+// Liberta toda a memória ocupada pelas leituras
 void liberarLeituras(LeituraSensor **lista) {
     LeituraSensor *atual = *lista;
     while (atual) {
@@ -73,6 +79,7 @@ void liberarLeituras(LeituraSensor **lista) {
     *lista = NULL;
 }
 
+// Lê o ficheiro de sensores, importa as leituras e cria incidentes para valores
 void importarSensores(LeituraSensor **leituras, Incidente **incidentes, FilaItem **fila, int *proximoId) {
     FILE *f = fopen("dados/sensores_rack.txt", "r");
     if (!f) {
@@ -136,6 +143,7 @@ void importarSensores(LeituraSensor **leituras, Incidente **incidentes, FilaItem
     printf("Log gravado em dados/log_sensores.txt\n");
 }
 
+// Mostra as leituras de sensores registadas
 void listarLeituras(const LeituraSensor *lista) {
     if (!lista) {
         printf("Nenhuma leitura registada.\n");
@@ -152,6 +160,7 @@ void listarLeituras(const LeituraSensor *lista) {
     printf("------------------------------------------------------------\n");
 }
 
+// Procura uma leitura pelo código
 LeituraSensor *pesquisarSensorPorCodigo(const LeituraSensor *lista, const char *codigo) {
     const LeituraSensor *atual = lista;
     while (atual) {
@@ -163,6 +172,7 @@ LeituraSensor *pesquisarSensorPorCodigo(const LeituraSensor *lista, const char *
     return NULL;
 }
 
+// Mostra apenas as leituras que foram classificadas
 void listarAnomalias(const LeituraSensor *lista) {
     if (!lista) {
         printf("Nenhuma leitura registada.\n");

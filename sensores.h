@@ -3,9 +3,11 @@
 
 #include "utils.h"
 
+// Declarações necessárias para usar incidentes e filas no módulo de sensores.
 typedef struct Incidente Incidente;
 typedef struct FilaItem FilaItem;
 
+// Estrutura para guardar leiturar na memória
 typedef struct LeituraSensor {
     char codigo[MAX_NOME];
     char tipo[MAX_TIPO];
@@ -15,6 +17,7 @@ typedef struct LeituraSensor {
     struct LeituraSensor *next;
 } LeituraSensor;
 
+// Estrutura para guardar leituras no ficheiro binário
 typedef struct LeituraSensorData {
     char codigo[MAX_NOME];
     char tipo[MAX_TIPO];

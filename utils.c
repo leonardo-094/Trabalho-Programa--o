@@ -1,5 +1,6 @@
 #include "utils.h"
 
+// Limpa antes de ler nova entrada.
 void limparBuffer(void) {
     int c;
     while ((c = getchar()) != '\n' && c != EOF) {
@@ -7,6 +8,7 @@ void limparBuffer(void) {
     }
 }
 
+// Lê um número inteiro e repete até a entrada ser válida.
 int lerInteiro(const char *prompt) {
     int valor;
     printf("%s", prompt);
@@ -18,6 +20,7 @@ int lerInteiro(const char *prompt) {
     return valor;
 }
 
+// Lê texto do utilizador e remove a linha nova no fim.
 void lerTexto(const char *prompt, char *destino, int tamanho) {
     printf("%s", prompt);
     if (fgets(destino, tamanho, stdin) == NULL) {
@@ -30,6 +33,7 @@ void lerTexto(const char *prompt, char *destino, int tamanho) {
     }
 }
 
+// Cria data e hora atual no formato YYYY-MM-DD HH:MM:SS.
 char *agoraFormato(char *buffer, int tamanho) {
     time_t t = time(NULL);
     struct tm *tm = localtime(&t);
