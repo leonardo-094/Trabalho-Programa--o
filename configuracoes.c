@@ -167,6 +167,20 @@ void consultarHistoricoEquipamento(const Configuracao *lista, int codigoEquipame
 }
 
 // Coloca uma configuração no topo da pilha
+void limparConfiguracoes(Configuracao **lista, PilhaItem **pilha) {
+    int confirmacao = lerInteiro("Tem a certeza que pretende apagar todo o histórico de configurações? (1=Sim / 0=Não): ");
+    if (confirmacao != 1) {
+        printf("Operação cancelada.\n");
+        return;
+    }
+
+    liberarConfiguracoes(lista);
+    liberarPilha(pilha);
+    configuracoes_salvar(*lista);
+
+    printf("Histórico de configurações apagado com sucesso.\n");
+}
+
 void empilharConfiguracao(PilhaItem **pilha, Configuracao *config) {
     if (!config) return;
     PilhaItem *item = malloc(sizeof(PilhaItem));

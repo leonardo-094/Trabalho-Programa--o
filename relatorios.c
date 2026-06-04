@@ -92,6 +92,10 @@ void gerarRelatorioMensal(const Incidente *incidentes) {
     int prioridadeAlta = 0;
     int prioridadeMedia = 0;
     int prioridadeBaixa = 0;
+    char tipos[64][MAX_TIPO];
+    int contagemTipos[64];
+    int totalTipos = 0;
+
     const Incidente *inc = incidentes;
     while (inc) {
         totalIncidentes++;
@@ -102,6 +106,25 @@ void gerarRelatorioMensal(const Incidente *incidentes) {
         } else {
             prioridadeBaixa++;
         }
+
+        int indice = 0;
+        int encontrado = 0;
+        while (indice < totalTipos) {
+            if (strcmp(inc->tipo, tipos[indice]) == 0) {
+                contagemTipos[indice]++;
+                encontrado = 1;
+                break;
+            }
+            indice++;
+        }
+
+        if (!encontrado && totalTipos < 64) {
+            strncpy(tipos[totalTipos], inc->tipo, MAX_TIPO);
+            tipos[totalTipos][MAX_TIPO - 1] = '\0';
+            contagemTipos[totalTipos] = 1;
+            totalTipos++;
+        }
+
         inc = inc->next;
     }
 
@@ -111,6 +134,10 @@ void gerarRelatorioMensal(const Incidente *incidentes) {
     fprintf(f, "Prioridade alta/CRITICO: %d\n", prioridadeAlta);
     fprintf(f, "Prioridade média/AVISO: %d\n", prioridadeMedia);
     fprintf(f, "Prioridade baixa: %d\n", prioridadeBaixa);
+    fprintf(f, "\nTotais por tipo:\n");
+    for (int i = 0; i < totalTipos; i++) {
+        fprintf(f, "- %s: %d\n", tipos[i], contagemTipos[i]);
+    }
 
     fclose(f);
     printf("Relatório mensal gerado em %s\n", nomeFicheiro);

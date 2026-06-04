@@ -381,6 +381,7 @@ void abrirMenuConfiguracoes(Sistema *sys) {
         printf("3. Consultar última configuração\n");
         printf("4. Consultar N últimas configurações\n");
         printf("5. Consultar histórico de equipamento\n");
+        printf("6. Limpar histórico de configurações\n");
         printf("0. Voltar\n");
         opcao = lerInteiro("Escolha uma opção: ");
         switch (opcao) {
@@ -403,6 +404,9 @@ void abrirMenuConfiguracoes(Sistema *sys) {
                 consultarHistoricoEquipamento(sys->configuracoes, codigo);
                 break;
             }
+            case 6:
+                limparConfiguracoes(&sys->configuracoes, &sys->pilhaConfiguracoes);
+                break;
             case 0:
                 break;
             default:
