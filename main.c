@@ -278,6 +278,7 @@ void abrirMenuSensores(Sistema *sys) {
         printf("2. Listar leituras\n");
         printf("3. Pesquisar sensor por código\n");
         printf("4. Listar anomalias\n");
+        printf("5. Descarregar leituras da API\n");
         printf("0. Voltar\n");
         opcao = lerInteiro("Escolha uma opção: ");
         switch (opcao) {
@@ -301,6 +302,9 @@ void abrirMenuSensores(Sistema *sys) {
             }
             case 4:
                 listarAnomalias(sys->leituras);
+                break;
+            case 5:
+                descarregarSensores();
                 break;
             case 0:
                 break;

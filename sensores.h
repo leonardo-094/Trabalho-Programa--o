@@ -27,6 +27,7 @@ typedef struct LeituraSensorData {
 } LeituraSensorData;
 
 void adicionarLeitura(LeituraSensor **lista, LeituraSensor *novo);
+void descarregarSensores(void);
 void importarSensores(LeituraSensor **leituras, Incidente **incidentes, FilaItem **fila, int *proximoId);
 void listarLeituras(const LeituraSensor *lista);
 LeituraSensor *pesquisarSensorPorCodigo(const LeituraSensor *lista, const char *codigo);

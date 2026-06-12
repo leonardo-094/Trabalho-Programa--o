@@ -1,4 +1,9 @@
-TEMP_RACK;Temperatura da rack;38.5;C;CRITICO
-HUM_RACK;Humidade da rack;72;%;AVISO
-UPS_BAT;Bateria da UPS;18;%;CRITICO
-UPS_ENERGIA;Estado da energia;0;-;FALHA_REDE
+# rack-sensor-simulator-api legacy export
+# day=2026-06-12
+codigo_sensor;tipo;valor;unidade;estado
+TEMP_RACK;temperature;28.5;C;NORMAL
+HUM_RACK;humidity;62;%;NORMAL
+UPS_BAT;ups-battery;86;%;NORMAL
+UPS_ENERGIA;ups-power;1;-;NORMAL
+FAN_RACK;fan-speed;2839;rpm;NORMAL
+DOOR_RACK;door-state;1;-;AVISO

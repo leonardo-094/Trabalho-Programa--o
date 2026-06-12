@@ -1,5 +1,6 @@
 #include "sensores.h"
 #include "incidentes.h"
+#include <curl/curl.h>
 
 // Ficheiro onde as leituras de sensores são guardadas
 static const char *LEITURAS_FILE = "dados/leituras_sensores.dat";
@@ -21,6 +22,43 @@ static void appendLeitura(LeituraSensor **lista, LeituraSensor *novo) {
 void adicionarLeitura(LeituraSensor **lista, LeituraSensor *novo) {
     if (!novo) return;
     appendLeitura(lista, novo);
+}
+
+// Descarrega as leituras da API para o ficheiro de sensores.
+void descarregarSensores(void) {
+    CURL *curl;
+    FILE *fp;
+    CURLcode result;
+
+    result = curl_global_init(CURL_GLOBAL_ALL);
+    curl = curl_easy_init();
+
+    if (curl) {
+        fp = fopen("dados/sensores_rack.txt", "w");
+        if (!fp) {
+            printf("Não foi possível abrir dados/sensores_rack.txt para escrita.\n");
+            curl_easy_cleanup(curl);
+            curl_global_cleanup();
+            return;
+        }
+
+        curl_easy_setopt(curl, CURLOPT_URL, "https://sensorlab.innominatum.pt/v1/sensors/export/legacy");
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+
+        result = curl_easy_perform(curl);
+        if (result != CURLE_OK) {
+            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(result));
+        } else {
+            printf("Leituras descarregadas com sucesso para dados/sensores_rack.txt.\n");
+        }
+
+        fclose(fp);
+        curl_easy_cleanup(curl);
+    } else {
+        fprintf(stderr, "Não foi possível inicializar a biblioteca cURL.\n");
+    }
+
+    curl_global_cleanup();
 }
 
 // Carrega as leituras guardadas em ficheiro binário
