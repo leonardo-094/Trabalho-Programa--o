@@ -1,13 +1,15 @@
 Relatório de estado da rede
 ===========================
+Resumo da rede: Estado Aviso — 1 equipamentos em falha, 1 anomalias
+
 Total de equipamentos: 5
 Equipamentos operacionais: 4
 Equipamentos em falha: 1
 Equipamentos em manutenção: 0
 Equipamentos desativados: 0
-Total de incidentes: 1
-Incidentes pendentes: 0
-Leituras anómalas de sensores: 0
+Total de incidentes: 2
+Incidentes pendentes: 1
+Leituras anómalas de sensores: 1
 
 Lista de equipamentos:
 Código | Nome | IP | Estado
@@ -16,4 +18,4 @@ Código | Nome | IP | Estado
 2 | Switch Core | 192.168.1.2 | Operacional
 3 | Access Point | 192.168.1.3 | Operacional
 4 | Servidor | 8.8.8.8 | Operacional
-5 | Equipamento Falha | 192.168.99.99 | Em Falha
+5 | Equipamento Teste | 192.168.99.99 | Em Falha

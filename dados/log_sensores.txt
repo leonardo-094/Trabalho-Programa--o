@@ -1,2 +1,1 @@
-[2026-06-05 11:42:33] Importação de sensores concluída: 4 leituras importadas
-[2026-06-12 18:50:00] Importação de sensores concluída: 6 leituras importadas
+[2026-06-15 10:58:08] Importação de sensores concluída: 6 leituras importadas

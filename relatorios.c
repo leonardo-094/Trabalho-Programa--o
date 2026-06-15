@@ -1,5 +1,27 @@
 #include "relatorios.h"
 
+// Analisa os valores recebidos e devolve o texto do estado da rede.
+char *calcularStatusRede(int equipamentosEmFalha, int leiturasAnomalias, int incidentesPendentes) {
+    static char resumo[256];
+
+    if (equipamentosEmFalha == 0 && leiturasAnomalias == 0 && incidentesPendentes == 0) {
+        snprintf(resumo, sizeof(resumo), "Estado Normal — Rede operacional");
+        return resumo;
+    }
+
+    if (equipamentosEmFalha >= 2 || leiturasAnomalias >= 3 || incidentesPendentes >= 2) {
+        snprintf(resumo, sizeof(resumo),
+                 "Estado Crítico — %d equipamentos em falha, %d anomalias, %d incidentes pendentes",
+                 equipamentosEmFalha, leiturasAnomalias, incidentesPendentes);
+    } else {
+        snprintf(resumo, sizeof(resumo),
+                 "Estado Aviso — %d equipamentos em falha, %d anomalias",
+                 equipamentosEmFalha, leiturasAnomalias);
+    }
+
+    return resumo;
+}
+
 // Cria um ficheiro de texto com o estado atual da rede, equipamentos e incidentes
 void gerarRelatorioEstado(const Equipamento *equipamentos, const Incidente *incidentes, const LeituraSensor *leituras) {
     char nomeFicheiro[128];
@@ -52,8 +74,11 @@ void gerarRelatorioEstado(const Equipamento *equipamentos, const Incidente *inci
         ls = ls->next;
     }
 
+    const char *statusRede = calcularStatusRede(emFalha, leiturasAnomalias, pendentes);
+
     fprintf(f, "Relatório de estado da rede\n");
     fprintf(f, "===========================\n");
+    fprintf(f, "Resumo da rede: %s\n\n", statusRede);
     fprintf(f, "Total de equipamentos: %d\n", totalEquipamentos);
     fprintf(f, "Equipamentos operacionais: %d\n", operacionais);
     fprintf(f, "Equipamentos em falha: %d\n", emFalha);
